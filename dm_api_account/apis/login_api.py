@@ -8,7 +8,7 @@ class LoginApi:
         self.host = host
         self.headers = headers
 
-    def put_v1_account_login(self, json_data: dict):
+    def post_v1_account_login(self, json_data: dict):
         """
         Authenticate via credentials
         :param json_data

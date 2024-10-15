@@ -1,9 +1,9 @@
 import json
 import random
 
-from clients.account.account_api import AccountApi
-from clients.account.login_api import LoginApi
-from clients.mailhog.mailhog_api import MailhogApi
+from dm_api_account.apis.account_api import AccountApi
+from dm_api_account.apis.login_api import LoginApi
+from mailhog.apis.mailhog_api import MailhogApi
 
 
 def get_activation_token_by_login(login, response):
@@ -60,7 +60,7 @@ def test_put_v1_account_email():
         'password': password,
         'rememberMe': True
     }
-    login_response = login_api.put_v1_account_login(json_data)
+    login_response = login_api.post_v1_account_login(json_data)
     print(login_response.status_code)
     print(login_response.text)
     assert login_response.status_code == 200, f'Не удалось авторизовать пользователя'
@@ -75,7 +75,7 @@ def test_put_v1_account_email():
     assert activate_response.status_code == 200, f'Не удалось изменить email пользователя'
 
     # авторизация с новым email
-    login_response = login_api.put_v1_account_login(json_data)
+    login_response = login_api.post_v1_account_login(json_data)
     print(login_response.status_code)
     print(login_response.text)
     assert login_response.status_code == 403, f''
@@ -92,7 +92,7 @@ def test_put_v1_account_email():
     assert activate_response.status_code == 200, f'Не удалось активировать пользователя'
 
     # авторизация
-    login_response = login_api.put_v1_account_login(json_data)
+    login_response = login_api.post_v1_account_login(json_data)
     print(login_response.status_code)
     print(login_response.text)
     assert login_response.status_code == 200, f'Не удалось авторизовать пользователя'

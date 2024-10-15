@@ -1,8 +1,8 @@
 import json
 import random
 
-from clients.account.account_api import AccountApi
-from clients.mailhog.mailhog_api import MailhogApi
+from dm_api_account.apis.account_api import AccountApi
+from mailhog.apis.mailhog_api import MailhogApi
 
 
 def get_activation_token_by_login(login, response):
