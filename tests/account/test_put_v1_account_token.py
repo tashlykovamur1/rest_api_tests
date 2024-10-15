@@ -1,8 +1,18 @@
 import json
 import random
 
+import structlog
+
 from dm_api_account.apis.account_api import AccountApi
 from mailhog.apis.mailhog_api import MailhogApi
+from rest_client.configuration import Configuration as MailhogConfiguration
+from rest_client.configuration import Configuration as DmApiConfiguration
+
+structlog.configure(
+    processors=[
+        structlog.processors.JSONRenderer(indent=4, ensure_ascii=True)
+    ]
+)
 
 
 def get_activation_token_by_login(login, response):
@@ -17,8 +27,11 @@ def get_activation_token_by_login(login, response):
 
 
 def test_put_v1_account_token():
-    account_api = AccountApi(host='http://5.63.153.31:5051')
-    mailhog_api = MailhogApi(host='http://5.63.153.31:5025')
+    mailhog_configuration = MailhogConfiguration(host='http://5.63.153.31:5025')
+    dm_api_configuration = DmApiConfiguration(host='http://5.63.153.31:5051')
+
+    account_api = AccountApi(configuration=dm_api_configuration)
+    mailhog_api = MailhogApi(configuration=mailhog_configuration)
 
     login = f'tashlykova_test{random.randint(1, 1000)}'
     password = '123456789'
@@ -31,14 +44,10 @@ def test_put_v1_account_token():
 
     # регистрация пользователя
     reg_response = account_api.post_v1_account(json_data=json_data)
-    print(reg_response.status_code)
-    print(reg_response.text)
     assert reg_response.status_code == 201, f'Не удалось зарегистрировать пользователя, {reg_response.json()}'
 
     # получение письма из почтового сервера
     msg_response = mailhog_api.get_api_v2_messages()
-    print(msg_response.status_code)
-    print(msg_response.text)
     assert msg_response.status_code == 200, f'Не удалось получить письма'
 
     # получение активационного токена
@@ -47,7 +56,4 @@ def test_put_v1_account_token():
 
     # активация пользователя
     activate_response = account_api.put_v1_account_token(token)
-
-    print(activate_response.status_code)
-    print(activate_response.text)
     assert activate_response.status_code == 200, f'Не удалось активировать пользователя'
