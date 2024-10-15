@@ -1,5 +1,6 @@
 import json
 import random
+from datetime import datetime
 
 import structlog
 
@@ -33,7 +34,7 @@ def test_put_v1_account_token():
     account_api = AccountApi(configuration=dm_api_configuration)
     mailhog_api = MailhogApi(configuration=mailhog_configuration)
 
-    login = f'tashlykova_test{random.randint(1, 1000)}'
+    login = f"tashlykova_{datetime.now().strftime('%Y.%m.%d.%H.%M.%S.%f')}"
     password = '123456789'
     email = f'{login}@mail.ru'
     json_data = {

@@ -1,5 +1,6 @@
 import json
 import random
+from datetime import datetime
 
 from dm_api_account.apis.account_api import AccountApi
 from dm_api_account.apis.login_api import LoginApi
@@ -34,7 +35,7 @@ def test_post_v1_account():
     login_api = LoginApi(configuration=dm_api_configuration)
     mailhog_api = MailhogApi(configuration=mailhog_configuration)
 
-    login = f'tashlykova_test{random.randint(1, 1000)}'
+    login = f"tashlykova_{datetime.now().strftime('%Y.%m.%d.%H.%M.%S.%f')}"
     password = '123456789'
     email = f'{login}@mail.ru'
     json_data = {

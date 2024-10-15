@@ -1,5 +1,6 @@
 import json
 import random
+from datetime import datetime
 
 import structlog
 
@@ -35,7 +36,7 @@ def test_put_v1_account_email():
     login_api = LoginApi(configuration=dm_api_configuration)
     mailhog_api = MailhogApi(configuration=mailhog_configuration)
 
-    login = f'tashlykova_test{random.randint(1, 1000)}'
+    login = f"tashlykova_{datetime.now().strftime('%Y.%m.%d.%H.%M.%S.%f')}"
     password = '123456789'
     email = f'{login}@mail.ru'
     json_data = {
@@ -70,7 +71,7 @@ def test_put_v1_account_email():
     assert login_response.status_code == 200, f'Не удалось авторизовать пользователя'
 
     # изменение email-а пользователя
-    new_email = f'new_tashlykova_test{random.randint(1, 1000)}@mail.ru'
+    new_email = f"tashlykova_{datetime.now().strftime('%Y.%m.%d.%H.%M.%S.%f')}@mail.ru"
     json_data['email'] = new_email
     activate_response = account_api.put_v1_account_email(json_data)
     assert activate_response.status_code == 200, f'Не удалось изменить email пользователя'
