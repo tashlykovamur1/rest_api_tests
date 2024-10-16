@@ -2,6 +2,11 @@ import json
 
 from services.api_mailhog import MailHogApi
 from services.dm_api_account import DMApiAccount
+from retrying import retry
+
+
+def retry_if_result_none(result):
+    return result is None
 
 
 class AccountHelper:
@@ -33,10 +38,11 @@ class AccountHelper:
         response = self.dm_account_api.login_api.post_v1_account_login(json_data=json_data)
         return response
 
+    @retry(stop_max_attempt_number=5, retry_on_result=retry_if_result_none, wait_fixed=1000)
     def get_activation_token_by_login(self, login: str):
+        token = None
         response = self.mailhog.mailhog_api.get_api_v2_messages()
         assert response.status_code == 200, f'Не удалось получить письма'
-        token = None
         for item in response.json()['items']:
             user_data = json.loads(item['Content']['Body'])
             user_login = user_data['Login']
