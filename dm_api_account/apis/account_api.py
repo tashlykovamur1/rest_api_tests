@@ -31,10 +31,44 @@ class AccountApi(RestClient):
     def put_v1_account_email(self, json_data: dict):
         """
         Change registered user email
-        :param new_email
+        :param json_data
         """
         response = self.put(
             path='/v1/account/email',
             json=json_data
+        )
+        return response
+
+    def get_v1_account(self, **kwargs):
+        """
+        Get current user
+        """
+        response = self.get(
+            path='/v1/account',
+            **kwargs
+        )
+        return response
+
+    def put_v1_account_password(self, json_data: dict, **kwargs):
+        """
+        Change registered user password
+        """
+        response = self.put(
+            path='/v1/account/password',
+            json=json_data,
+            **kwargs
+
+        )
+        return response
+
+    def post_v1_account_password(self, json_data: dict, **kwargs):
+        """
+        Reset registered user password
+        """
+        response = self.post(
+            path='/v1/account/password',
+            json=json_data,
+            **kwargs
+
         )
         return response
