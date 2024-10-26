@@ -22,10 +22,9 @@ class AccountApi(RestClient):
         )
         return response
 
-    def put_v1_account_token(self, token: str, validate_response: bool = True):
+    def put_v1_account_token(self, token: str):
         """
         Activate registered user
-        :param validate_response
         :param token
         """
         headers = {'accept': 'text/plain'}
@@ -33,25 +32,20 @@ class AccountApi(RestClient):
             path=f'/v1/account/{token}',
             headers=headers
         )
-        if validate_response:
-            return UserEnvelope(**response.json()), response
-        return response
+        return self.format_response(response=response, response_schema=UserEnvelope)
 
-    def put_v1_account_email(self, change_email_json: ChangeEmail, validate_response: bool = True):
+    def put_v1_account_email(self, change_email_json: ChangeEmail):
         """
         Change registered user email
-        :param validate_response
         :param change_email_json
         """
         response = self.put(
             path='/v1/account/email',
             json=change_email_json.model_dump(exclude_none=True, by_alias=True)
         )
-        if validate_response:
-            return UserEnvelope(**response.json()), response
-        return response
+        return self.format_response(response=response, response_schema=UserEnvelope)
 
-    def get_v1_account(self, validate_response: bool = True, **kwargs):
+    def get_v1_account(self, **kwargs):
         """
         Get current user
         """
@@ -59,13 +53,12 @@ class AccountApi(RestClient):
             path='/v1/account',
             **kwargs
         )
-        if validate_response:
-            return UserDetailsEnvelope(**response.json()), response
-        return response
+        return self.format_response(response=response, response_schema=UserDetailsEnvelope)
 
-    def put_v1_account_password(self, change_password_json: ChangePassword, validate_response: bool = True, **kwargs):
+    def put_v1_account_password(self, change_password_json: ChangePassword, **kwargs):
         """
         Change registered user password
+        :param change_password_json
         """
         response = self.put(
             path='/v1/account/password',
@@ -73,13 +66,12 @@ class AccountApi(RestClient):
             **kwargs
 
         )
-        if validate_response:
-            return UserEnvelope(**response.json()), response
-        return response
+        return self.format_response(response=response, response_schema=UserEnvelope)
 
-    def post_v1_account_password(self, reset_password_json: ResetPassword, validate_response: bool = True, **kwargs):
+    def post_v1_account_password(self, reset_password_json: ResetPassword, **kwargs):
         """
         Reset registered user password
+        :param reset_password_json
         """
         response = self.post(
             path='/v1/account/password',
@@ -87,6 +79,4 @@ class AccountApi(RestClient):
             **kwargs
 
         )
-        if validate_response:
-            return UserEnvelope(**response.json()), response
-        return response
+        return self.format_response(response=response, response_schema=UserEnvelope)

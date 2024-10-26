@@ -7,19 +7,16 @@ from rest_client.client import RestClient
 
 class LoginApi(RestClient):
 
-    def post_v1_account_login(self, login_credentials_json: LoginCredentials, validate_response: bool = True):
+    def post_v1_account_login(self, login_credentials_json: LoginCredentials):
         """
         Authenticate via credentials
-        :param json_data
+        :param login_credentials_json
         """
         response = self.post(
             path='/v1/account/login',
             json=login_credentials_json.model_dump(exclude_none=True, by_alias=True)
         )
-        if validate_response:
-            return UserEnvelope(**response.json()), response
-
-        return response
+        return self.format_response(response=response, response_schema=UserEnvelope)
 
     def delete_v1_account_login(self, **kwargs):
         """

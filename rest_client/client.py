@@ -1,9 +1,19 @@
-import structlog
-from requests import session, JSONDecodeError
-import uuid
-import curlify
+from typing import Any, Dict
 
+import structlog
+from pydantic import ValidationError
+from requests import session, JSONDecodeError, Response, HTTPError
+import uuid
 from rest_client.configuration import Configuration
+
+
+class ResponseWrapper:
+    def __init__(self, status_code: int, headers: Dict[str, Any], cookies: Dict[str, Any], body: Any, error: str = None):
+        self.status_code = status_code
+        self.headers = headers
+        self.cookies = cookies
+        self.body = body
+        self.error = error
 
 
 class RestClient:
@@ -51,8 +61,8 @@ class RestClient:
             data=kwargs.get('data')
         )
         response = self.session.request(method=method, url=full_url, **kwargs)
-        curl = curlify.to_curl(response.request)
-        print(curl)
+        # curl = curlify.to_curl(response.request)
+        # print(curl)
 
         log.msg(
             event='Response',
@@ -68,3 +78,35 @@ class RestClient:
             return response.json()
         except JSONDecodeError:
             return {}
+
+    @staticmethod
+    def format_response(
+            response: Response,
+            response_schema: Any,
+            empty_body: bool = False,
+    ) -> ResponseWrapper:
+        """Format and return response"""
+        error = None
+        try:
+            body = (
+                response.text
+                if empty_body
+                else response_schema(
+                    many=True if isinstance(response.json(), list) else None
+                ).load(response.json())
+            )
+        except (ValidationError, JSONDecodeError, TypeError, HTTPError) as exc:
+            body = (
+                response.json()
+                if response.text.startswith("{") and response.text.endswith("}")
+                else response.text
+            )
+            error = f"Incorrect response: {exc}"
+
+        return ResponseWrapper(
+            status_code=response.status_code,
+            headers=dict(response.headers),
+            cookies=dict(response.cookies),
+            body=body,
+            error=error
+        )
