@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -77,4 +77,4 @@ class UserDetails(BaseModel):
 class UserDetailsEnvelope(BaseModel):
     model_config = ConfigDict(extra="forbid")
     resource: Optional[UserDetails] = None
-    metadata: Optional[str] = None
+    metadata: Optional[Dict] = None

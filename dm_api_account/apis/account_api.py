@@ -69,7 +69,7 @@ class AccountApi(RestClient):
         """
         response = self.put(
             path='/v1/account/password',
-            json=change_password_json.model_dump(exclude_none=True),
+            json=change_password_json.model_dump(exclude_none=True, by_alias=True),
             **kwargs
 
         )

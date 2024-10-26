@@ -6,8 +6,8 @@ def test_put_v1_account_password(auth_account_helper):
     helper.change_user_password(
         login=user_data.login,
         email=user_data.email,
-        old_pwd=user_data.password,
-        new_pwd=new_pwd
+        old_password=user_data.password,
+        new_password=new_pwd
     )
 
     # Авторизация пользователя с новым паролем

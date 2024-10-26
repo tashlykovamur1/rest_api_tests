@@ -100,8 +100,8 @@ class AccountHelper:
         change_password = ChangePassword(
             login=login,
             token=token,
-            oldPassword=old_pwd,
-            newPassword=new_pwd
+            old_password=old_pwd,
+            new_password=new_pwd
         )
 
         # смена пароля
