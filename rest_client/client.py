@@ -49,6 +49,7 @@ class RestClient:
 
         if self.disable_log:
             response = self.session.request(method=method, url=full_url, **kwargs)
+            response.raise_for_status()
             return response
 
         log.msg(
@@ -70,6 +71,7 @@ class RestClient:
             headers=response.headers,
             json=self._get_json(response)
         )
+        response.raise_for_status()
         return response
 
     @staticmethod
