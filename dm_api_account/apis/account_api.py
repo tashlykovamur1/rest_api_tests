@@ -18,7 +18,7 @@ class AccountApi(RestClient):
         """
         response = self.post(
             path='/v1/account',
-            json=registration_json.model_dump(exclude_none=True)
+            json=registration_json.model_dump(exclude_none=True, by_alias=True)
         )
         return response
 
@@ -45,7 +45,7 @@ class AccountApi(RestClient):
         """
         response = self.put(
             path='/v1/account/email',
-            json=change_email_json.model_dump(exclude_none=True)
+            json=change_email_json.model_dump(exclude_none=True, by_alias=True)
         )
         if validate_response:
             return UserEnvelope(**response.json()), response
@@ -83,7 +83,7 @@ class AccountApi(RestClient):
         """
         response = self.post(
             path='/v1/account/password',
-            json=reset_password_json.model_dump(exclude_none=True),
+            json=reset_password_json.model_dump(exclude_none=True, by_alias=True),
             **kwargs
 
         )

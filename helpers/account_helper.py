@@ -86,7 +86,7 @@ class AccountHelper:
         assert response.status_code == 200, f'Не удалось изменить email пользователя'
         return response
 
-    def change_user_password(self, login: str, email: str, old_pwd: str, new_pwd: str):
+    def change_user_password(self, login: str, email: str, old_password: str, new_password: str):
         # сброс пароля
         reset_password = ResetPassword(
             login=login, email=email
@@ -100,8 +100,8 @@ class AccountHelper:
         change_password = ChangePassword(
             login=login,
             token=token,
-            old_password=old_pwd,
-            new_password=new_pwd
+            old_password=old_password,
+            new_password=new_password
         )
 
         # смена пароля
