@@ -1,3 +1,6 @@
+from hamcrest import assert_that, equal_to
+
+
 def test_post_v1_account(account_helper, prepare_user):
     login = prepare_user.login
     password = prepare_user.password
@@ -7,4 +10,5 @@ def test_post_v1_account(account_helper, prepare_user):
     account_helper.register_new_user(login=login, password=password, email=email)
 
     # авторизация пользователя
-    account_helper.login_user(login=login, password=password)
+    response = account_helper.login_user(login=login, password=password)
+    assert_that(response.body['resource']['login'], equal_to(login))
