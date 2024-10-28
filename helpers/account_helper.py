@@ -1,5 +1,10 @@
 import json
 
+from dm_api_account.models.change_email import ChangeEmail
+from dm_api_account.models.change_password import ChangePassword
+from dm_api_account.models.login_credentials import LoginCredentials
+from dm_api_account.models.registration import Registration
+from dm_api_account.models.reset_password import ResetPassword
 from services.api_mailhog import MailHogApi
 from services.dm_api_account import DMApiAccount
 from retrying import retry
@@ -17,7 +22,7 @@ class AccountHelper:
     def auth_client(self, login: str, password: str, remember_me: bool = True):
         response = self.login_user(login=login, password=password, remember_me=remember_me)
         auth_token = {
-            "x-dm-auth-token": response.headers["x-dm-auth-token"]
+            "x-dm-auth-token": response.headers["X-Dm-Auth-Token"]
         }
         self.dm_account_api.account_api.set_headers(auth_token)
         self.dm_account_api.login_api.set_headers(auth_token)
@@ -28,27 +33,30 @@ class AccountHelper:
         return response
 
     def create_new_user(self, login: str, password: str, email: str):
-        json_data = {
-            'login': login,
-            'email': email,
-            'password': password
-        }
-        reg_response = self.dm_account_api.account_api.post_v1_account(json_data=json_data)
+        registration = Registration(
+            login=login,
+            email=email,
+            password=password
+        )
+        reg_response = self.dm_account_api.account_api.post_v1_account(registration_json=registration)
+        assert reg_response.status_code == 201, f'Не удалось создать пользователя'
         return reg_response
 
     def activate_registered_user(self, login: str):
         token = self.get_token_by_login(login=login)
         response = self.dm_account_api.account_api.put_v1_account_token(token=token)
+        assert response.status_code == 200, f'Не удалось активировать пользователя'
         return response
 
     def login_user(self, login: str, password: str, remember_me: bool = True):
-        json_data = {
-            'login': login,
-            'password': password,
-            'rememberMe': remember_me
-        }
+        login_credentials = LoginCredentials(
+            login=login,
+            password=password,
+            remember_me=remember_me,
+        )
 
-        response = self.dm_account_api.login_api.post_v1_account_login(json_data=json_data)
+        response = self.dm_account_api.login_api.post_v1_account_login(login_credentials_json=login_credentials)
+        assert response.status_code == 200, f'Не удалось авторизовать пользователя с новым паролем'
         return response
 
     @retry(stop_max_attempt_number=5, retry_on_result=retry_if_result_none, wait_fixed=1000)
@@ -69,32 +77,39 @@ class AccountHelper:
         return token
 
     def change_user_email(self, login: str, new_email: str, password: str):
-        json_data = {
-            'login': login,
-            'email': new_email,
-            'password': password
-        }
-        response = self.dm_account_api.account_api.put_v1_account_email(json_data=json_data)
+        change_email = ChangeEmail(
+            login=login,
+            email=new_email,
+            password=password
+        )
+        response = self.dm_account_api.account_api.put_v1_account_email(change_email_json=change_email)
+        assert response.status_code == 200, f'Не удалось изменить email пользователя'
         return response
 
-    def change_user_password(self, login: str, email: str, old_pwd: str, new_pwd: str):
+    def change_user_password(self, login: str, email: str, old_password: str, new_password: str):
         # сброс пароля
-        self.dm_account_api.account_api.post_v1_account_password(json_data={'login': login, 'email': email})
+        reset_password = ResetPassword(
+            login=login, email=email
+        )
+        response = self.dm_account_api.account_api.post_v1_account_password(reset_password_json=reset_password)
+        assert response.status_code == 200, f'Не удалось сбросить пароль пользователя'
 
         # получение токена для сброса пароля
         token = self.get_token_by_login(login=login, token_type='reset')
 
-        json_data = {
-            'login': login,
-            'token': token,
-            'oldPassword': old_pwd,
-            'newPassword': new_pwd
-        }
+        change_password = ChangePassword(
+            login=login,
+            token=token,
+            old_password=old_password,
+            new_password=new_password
+        )
 
         # смена пароля
-        response = self.dm_account_api.account_api.put_v1_account_password(json_data=json_data)
+        response = self.dm_account_api.account_api.put_v1_account_password(change_password_json=change_password)
+        assert response.status_code == 200, f'Не удалось изменить пароль пользователя'
+
         auth_token = {
-            "x-dm-auth-token": response.headers["x-dm-auth-token"]
+            "x-dm-auth-token": response.headers["X-Dm-Auth-Token"]
         }
         self.dm_account_api.account_api.set_headers(auth_token)
         self.dm_account_api.login_api.set_headers(auth_token)
