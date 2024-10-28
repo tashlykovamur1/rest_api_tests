@@ -1,5 +1,7 @@
 import requests
 from contextlib import contextmanager
+
+from hamcrest import assert_that, equal_to
 from requests.exceptions import HTTPError
 import json
 
@@ -14,4 +16,5 @@ def check_http_status_code(expected_status_code: requests.codes = requests.codes
             raise AssertionError(f"Должно быть получено сообщение '{expected_msg}', но запрос прошел успешно")
 
     except HTTPError as exc:
-        return HTTPError(json.loads(exc.response.text))
+        assert_that(exc.response.status_code, equal_to(expected_status_code))
+        assert_that(exc.response.json()['title'], equal_to(expected_msg))

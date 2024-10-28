@@ -1,5 +1,6 @@
 from typing import Any, Dict
 
+import curlify
 import structlog
 from pydantic import ValidationError
 from requests import session, JSONDecodeError, Response, HTTPError
@@ -62,8 +63,8 @@ class RestClient:
             data=kwargs.get('data')
         )
         response = self.session.request(method=method, url=full_url, **kwargs)
-        # curl = curlify.to_curl(response.request)
-        # print(curl)
+        curl = curlify.to_curl(response.request)
+        print(curl)
 
         log.msg(
             event='Response',

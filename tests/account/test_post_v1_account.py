@@ -43,7 +43,7 @@ def test_post_v1_account(account_helper, prepare_user):
     ]
 )
 def test_post_v1_account_negative_data(account_helper, login, email, password, error_msg):
-    with check_http_status_code(400, error_msg):
+    with check_http_status_code(400, 'Validation failed'):
         response = account_helper.register_new_user(login=login, password=password, email=email)
         assert_that(response, has_entries(
             {'errors': has_entries(error_msg)}
