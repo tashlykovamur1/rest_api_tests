@@ -48,14 +48,14 @@ class AccountHelper:
         assert response.status_code == 200, f'Не удалось активировать пользователя'
         return response
 
-    def login_user(self, login: str, password: str, remember_me: bool = True):
+    def login_user(self, login: str, password: str, remember_me: bool = True, auth_header: dict = None):
         login_credentials = LoginCredentials(
             login=login,
             password=password,
             remember_me=remember_me,
         )
-
         response = self.dm_account_api.login_api.post_v1_account_login(login_credentials_json=login_credentials)
+
         assert response.status_code == 200, f'Не удалось авторизовать пользователя с новым паролем'
         return response
 
@@ -87,6 +87,7 @@ class AccountHelper:
         return response
 
     def change_user_password(self, login: str, email: str, old_password: str, new_password: str):
+
         # сброс пароля
         reset_password = ResetPassword(
             login=login, email=email
@@ -105,12 +106,10 @@ class AccountHelper:
         )
 
         # смена пароля
-        response = self.dm_account_api.account_api.put_v1_account_password(change_password_json=change_password)
+        response = self.dm_account_api.account_api.put_v1_account_password(
+            change_password_json=change_password,
+            headers={"x-dm-auth-token": response.headers["X-Dm-Auth-Token"]}
+        )
         assert response.status_code == 200, f'Не удалось изменить пароль пользователя'
 
-        auth_token = {
-            "x-dm-auth-token": response.headers["X-Dm-Auth-Token"]
-        }
-        self.dm_account_api.account_api.set_headers(auth_token)
-        self.dm_account_api.login_api.set_headers(auth_token)
         return response

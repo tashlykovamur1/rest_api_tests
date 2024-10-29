@@ -11,18 +11,19 @@ from rest_client.client import RestClient
 
 class AccountApi(RestClient):
 
-    def post_v1_account(self, registration_json: Registration):
+    def post_v1_account(self, registration_json: Registration, **kwargs):
         """
         Register new user
         :param registration_json
         """
         response = self.post(
             path='/v1/account',
-            json=registration_json.model_dump(exclude_none=True, by_alias=True)
+            json=registration_json.model_dump(exclude_none=True, by_alias=True),
+            **kwargs,
         )
         return response
 
-    def put_v1_account_token(self, token: str):
+    def put_v1_account_token(self, token: str, **kwargs):
         """
         Activate registered user
         :param token
@@ -30,18 +31,20 @@ class AccountApi(RestClient):
         headers = {'accept': 'text/plain'}
         response = self.put(
             path=f'/v1/account/{token}',
-            headers=headers
+            headers=headers,
+            **kwargs
         )
         return self.format_response(response=response, response_schema=UserEnvelope)
 
-    def put_v1_account_email(self, change_email_json: ChangeEmail):
+    def put_v1_account_email(self, change_email_json: ChangeEmail, **kwargs):
         """
         Change registered user email
         :param change_email_json
         """
         response = self.put(
             path='/v1/account/email',
-            json=change_email_json.model_dump(exclude_none=True, by_alias=True)
+            json=change_email_json.model_dump(exclude_none=True, by_alias=True),
+            **kwargs
         )
         return self.format_response(response=response, response_schema=UserEnvelope)
 
