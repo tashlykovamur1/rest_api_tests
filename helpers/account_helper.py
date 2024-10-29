@@ -48,7 +48,7 @@ class AccountHelper:
         assert response.status_code == 200, f'Не удалось активировать пользователя'
         return response
 
-    def login_user(self, login: str, password: str, remember_me: bool = True, auth_header: dict = None):
+    def login_user(self, login: str, password: str, remember_me: bool = True):
         login_credentials = LoginCredentials(
             login=login,
             password=password,
