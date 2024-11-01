@@ -20,7 +20,8 @@ structlog.configure(
 options = (
     "service.dm_api_account",
     "service.mailhog"
-) # из yaml файлов
+)  # из yaml файлов
+
 
 @pytest.fixture(scope="session", autouse=True)
 def set_config(request):
@@ -32,10 +33,13 @@ def set_config(request):
 
     for option in options:
         v.set(f"{option}", request.config.getoption(f"--{option}"))
+
+
 def pytest_addoption(parser):
     parser.addoption("--env", action="store", default="stg", help="run stg")
     for option in options:
         parser.addoption(f"--{option}", action="store", default=None)
+
 
 @pytest.fixture(scope="session")
 def mailhog_api():
