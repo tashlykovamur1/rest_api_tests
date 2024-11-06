@@ -1,3 +1,5 @@
+import random
+import string
 from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
@@ -79,7 +81,7 @@ def auth_account_helper(mailhog_api, prepare_user):
 
 @pytest.fixture
 def prepare_user():
-    date_now = datetime.now().strftime('%d_%m_%Y_%H_%M_%S')
+    date_now = datetime.now().strftime('%d_%m_%Y_%H_%M_%S') + f'_{datetime.now().microsecond // 1000:03d}'
     login = f"tashlykova_{date_now}"
     password = '123456789'
     email = f'{login}@mail.ru'
