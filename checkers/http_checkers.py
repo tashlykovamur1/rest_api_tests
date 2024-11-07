@@ -4,6 +4,7 @@ from contextlib import contextmanager
 from hamcrest import assert_that, equal_to
 from requests.exceptions import HTTPError
 
+
 @contextmanager
 def check_http_status_code(expected_status_code: requests.codes = requests.codes.OK, expected_msg: str = ""):
     try:
