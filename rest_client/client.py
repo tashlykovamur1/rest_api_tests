@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from requests import session, JSONDecodeError, Response, HTTPError
 import uuid
 from rest_client.configuration import Configuration
+from rest_client.utils import allure_attach
 
 
 class ResponseWrapper:
@@ -29,18 +30,23 @@ class RestClient:
         if headers:
             self.session.headers.update(headers)
 
+    @allure_attach
     def post(self, path: str, **kwargs):
         return self._send_request(method='POST', path=path, **kwargs)
 
+    @allure_attach
     def get(self, path: str, **kwargs):
         return self._send_request(method='GET', path=path, **kwargs)
 
+    @allure_attach
     def put(self, path: str, **kwargs):
         return self._send_request(method='PUT', path=path, **kwargs)
 
+    @allure_attach
     def patch(self, path: str, **kwargs):
         return self._send_request(method='PATCH', path=path, **kwargs)
 
+    @allure_attach
     def delete(self, path: str, **kwargs):
         return self._send_request(method='DELETE', path=path, **kwargs)
 

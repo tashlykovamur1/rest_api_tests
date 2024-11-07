@@ -3,6 +3,8 @@ import string
 from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
+
+import allure
 from vyper import v
 import pytest
 from helpers.account_helper import AccountHelper
@@ -63,6 +65,7 @@ def account_helper(account_api, mailhog_api):
     return account_helper
 
 
+@allure.title("Регистрация и авторизация пользователя")
 @pytest.fixture
 def auth_account_helper(mailhog_api, prepare_user):
     account = DMApiAccount(configuration=DmApiConfiguration(host=v.get("service.dm_api_account")))

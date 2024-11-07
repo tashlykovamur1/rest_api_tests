@@ -1,5 +1,7 @@
 import json
 
+import allure
+
 from dm_api_account.models.change_email import ChangeEmail
 from dm_api_account.models.change_password import ChangePassword
 from dm_api_account.models.login_credentials import LoginCredentials
@@ -43,9 +45,13 @@ class AccountHelper:
         return reg_response
 
     def activate_registered_user(self, login: str):
-        token = self.get_token_by_login(login=login)
-        response = self.dm_account_api.account_api.put_v1_account_token(token=token)
-        assert response.status_code == 200, f'Не удалось активировать пользователя'
+        with allure.step("Получение токена для активации пользователя"):
+            token = self.get_token_by_login(login=login)
+
+        with allure.step("Активация пользователя"):
+            response = self.dm_account_api.account_api.put_v1_account_token(token=token)
+            assert response.status_code == 200, f'Не удалось активировать пользователя'
+
         return response
 
     def login_user(self, login: str, password: str, remember_me: bool = True):
@@ -87,29 +93,27 @@ class AccountHelper:
         return response
 
     def change_user_password(self, login: str, email: str, old_password: str, new_password: str):
+        with allure.step("Сброс старого пароля"):
+            reset_password = ResetPassword(
+                login=login, email=email
+            )
+            response = self.dm_account_api.account_api.post_v1_account_password(reset_password_json=reset_password)
+            assert response.status_code == 200, f'Не удалось сбросить пароль пользователя'
 
-        # сброс пароля
-        reset_password = ResetPassword(
-            login=login, email=email
-        )
-        response = self.dm_account_api.account_api.post_v1_account_password(reset_password_json=reset_password)
-        assert response.status_code == 200, f'Не удалось сбросить пароль пользователя'
+        with allure.step("Получение токена для сброса пароля"):
+            token = self.get_token_by_login(login=login, token_type='reset')
 
-        # получение токена для сброса пароля
-        token = self.get_token_by_login(login=login, token_type='reset')
-
-        change_password = ChangePassword(
-            login=login,
-            token=token,
-            old_password=old_password,
-            new_password=new_password
-        )
-
-        # смена пароля
-        response = self.dm_account_api.account_api.put_v1_account_password(
-            change_password_json=change_password,
-            headers={"x-dm-auth-token": response.headers["X-Dm-Auth-Token"]}
-        )
-        assert response.status_code == 200, f'Не удалось изменить пароль пользователя'
+        with allure.step("Изменение пароля"):
+            change_password = ChangePassword(
+                login=login,
+                token=token,
+                old_password=old_password,
+                new_password=new_password
+            )
+            response = self.dm_account_api.account_api.put_v1_account_password(
+                change_password_json=change_password,
+                headers={"x-dm-auth-token": response.headers["X-Dm-Auth-Token"]}
+            )
+            assert response.status_code == 200, f'Не удалось изменить пароль пользователя'
 
         return response
