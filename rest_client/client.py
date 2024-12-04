@@ -5,6 +5,10 @@ import structlog
 from pydantic import ValidationError
 from requests import session, JSONDecodeError, Response, HTTPError
 import uuid
+
+from swagger_coverage_py.request_schema_handler import RequestSchemaHandler
+from swagger_coverage_py.uri import URI
+
 from rest_client.configuration import Configuration
 from rest_client.utils import allure_attach
 
@@ -71,6 +75,12 @@ class RestClient:
         response = self.session.request(method=method, url=full_url, **kwargs)
         curl = curlify.to_curl(response.request)
         print(curl)
+
+        # coverage
+        url = URI(host=self.host, base_path="", unformatted_path=path, uri_params=kwargs.get("params"))
+        RequestSchemaHandler(
+            uri=url, method=method.lower(), response=response, kwargs=kwargs
+        ).write_schema()
 
         log.msg(
             event='Response',
