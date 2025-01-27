@@ -1,10 +1,9 @@
-import random
-import string
 from collections import namedtuple
 from datetime import datetime
 from pathlib import Path
 
 import allure
+from swagger_coverage_py.reporter import CoverageReporter
 from vyper import v
 import pytest
 from helpers.account_helper import AccountHelper
@@ -91,3 +90,14 @@ def prepare_user():
     User = namedtuple("User", ["login", "password", "email"])
     user = User(login=login, password=password, email=email)
     return user
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_swagger_coverage():
+    reporter = CoverageReporter(api_name="dm-api-account", host="http://5.63.153.31:5051")
+    reporter.setup("/swagger/Account/swagger.json")
+
+    yield
+    reporter.generate_report()
+    reporter.cleanup_input_files()
+
